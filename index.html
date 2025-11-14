@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Domidog's - Sabores Autênticos da Itália</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-bg {
+            background: linear-gradient(rgba(139, 0, 0, 0.7), rgba(139, 0, 0, 0.7)), url('https://placehold.co/1920x600/d9534f/ffffff?text=Pizza+fresca+e+saborosa+na+Pizzaria+Giuseppe');
+            background-size: cover;
+            background-position: center;
+            min-height: 500px;
+        }
+        
+        .pizza-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .pizza-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cart-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .cart-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Header com navegação elegante -->
+    <header class="bg-red-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold"> Domidog's</h1>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#inicio" class="hover:text-yellow-300 transition">Início</a>
+                <a href="#menu" class="hover:text-yellow-300 transition">Menu</a>
+                <a href="#sobre" class="hover:text-yellow-300 transition">Sobre</a>
+                <a href="#contato" class="hover:text-yellow-300 transition">Contato</a>
+            </nav>
+            <button id="mobile-menu-toggle" class="md:hidden">
+        <img src="https://placehold.co/30x30/ffffff/000000?text=☰" alt="Mobile menu icon button for navigation options in Italian-style pizzaria" />
+      </button>
+            <button id="cart-btn" class="bg-yellow-400 text-red-800 px-4 py-2 rounded-md font-semibold shadow-md hover:bg-yellow-300 transition">
+        Carrinho (<span id="cart-count">0</span>)
+      </button>
+        </div>
+        <!-- Menu mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-red-700 px-4 py-2">
+            <nav class="flex flex-col space-y-2">
+                <a href="#inicio" class="hover:text-yellow-300">Início</a>
+                <a href="#menu" class="hover:text-yellow-300">Menu</a>
+                <a href="#sobre" class="hover:text-yellow-300">Sobre</a>
+                <a href="#contato" class="hover:text-yellow-300">Contato</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section inspirada em pizzarias italianas -->
+    <section id="inicio" class="hero-bg text-white text-center py-20">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold mb-4 text-shadow-lg">Sabor Autêntico da Itália</h2>
+            <p class="text-xl mb-8">Pizzas artesanais, ingredientes frescos e tradição italiana há gerações.</p>
+            <a href="#menu" class="bg-yellow-400 text-red-800 px-8 py-3 rounded-full font-semibold shadow-lg hover:bg-yellow-300 transition">Ver Menu</a>
+        </div>
+    </section>
+
+    <!-- Menu de Pizzas com design elegante -->
+    <section id="menu" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-red-800">Nosso Menu Tradicional</h3>
+            <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Pizzas serão renderizadas aqui via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Nós, focado em história italiana -->
+    <section id="sobre" class="py-16 bg-gray-200">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold mb-8 text-red-800">Sobre a Pizzaria Giuseppe</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <img src="https://placehold.co/600x400/d9534f/ffffff?text=Família+italiana+preparando+pizzas+artesanalmente+no+forno+a+lênha+em+cômodo+clássico+de+pizzaria" alt="Family portrait of Italian descendants preparing fresh pizzas in a traditional wood-fired oven at Giuseppe Pizzaria in Diadema, capturing authentic Italian pizza making heritage with rustic kitchen elements"
+                    class="rounded-lg shadow-lg" />
+                <div class="text-left">
+                    <p class="mb-4 text-lg">Fundada em 1995 por imigrantes italianos da Toscana, a Pizzaria Giuseppe traz o sabor autêntico da culinária italiana para Diadema.</p>
+                    <p class="mb-4">Nossa paixão por pizzas começou com receitas transmitidas de geração em geração, usando apenas ingredientes selecionados importados diretamente da Itália.</p>
+                    <p class="font-semibold text-red-800">Venha conhecer nossa tradição e sentir o calor da família Giuseppe!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato com localização -->
+    <section id="contato" class="py-16 bg-white">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold mb-8 text-red-800">Visite-nos em Diadema</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="text-left">
+                    <h4 class="text-xl font-semibold mb-4 text-red-800">Horário de Funcionamento</h4>
+                    <ul class="mb-6">
+                        <li>Segunda a Sexta: 18h às 23h</li>
+                        <li>Sábado e Domingo: 17h às 24h</li>
+                        <li>Feriados: Consultar disponibilidade</li>
+                    </ul>
+                    <h4 class="text-xl font-semibold mb-2 text-red-800">Endereço</h4>
+                    <p>Rua Italia, 123 - Centro, Diadema-SP</p>
+                    <p>Telefone: (11) 9876-54321</p>
+                </div>
+                <img src="" />
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal do Carrinho -->
+    <div id="cart-modal " class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center ">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 ">
+            <h3 class="text-2xl font-bold mb-4 text-red-800 ">Seu Carrinho</h3>
+            <div id="cart-items-modal " class="space-y-4 mb-6 ">
+                <!-- Itens do carrinho aqui -->
+            </div>
+            <div id="cart-total " class="text-xl font-bold text-right mb-4 ">Total: R$ 0,00</div>
+            <div class="flex space-x-4 ">
+                <button id="clear-cart " class="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition ">Limpar Carrinho</button>
+                <button id="close-cart " class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition ">Fechar</button>
+                <button id="checkout-cart " class="bg-yellow-400 text-red-800 px-4 py-2 rounded-md font-semibold hover:bg-yellow-300 transition ">Finalizar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Checkout -->
+    <div id="checkout-modal " class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center ">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 ">
+            <h3 class="text-2xl font-bold mb-4 text-red-800 ">Finalizar Pedido</h3>
+            <form id="checkout-form " novalidate>
+                <label class="block mb-2 ">
+          Nome: <input type="text " id="checkout-name " required class="w-full p-2 border rounded-md " placeholder="Seu nome completo " />
+        </label>
+                <label class="block mb-2 ">
+          Endereço: <textarea id="checkout-address " required class="w-full p-2 border rounded-md " rows="3 " placeholder="Rua, número, bairro "></textarea>
+        </label>
+                <label class="block mb-4 ">
+          Telefone: <input type="tel " id="checkout-phone " required class="w-full p-2 border rounded-md " placeholder="(11) 98765-4321 " />
+        </label>
+                <div class="flex justify-between ">
+                    <button type="button " id="back-to-cart " class="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition ">Voltar ao Carrinho</button>
+                    <button type="submit " class="bg-green-600 text-white px-8 py-2 rounded-md hover:bg-green-700 transition font-semibold ">Fazer Pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer elegante -->
+    <footer class="bg-red-800 text-white py-8 ">
+        <div class="container mx-auto px-4 text-center ">
+            <p>&copy; 2024 Pizzaria Giuseppe de Diadema. Todos os direitos reservados.</p>
+            <p class="mt-2 ">Tradição italiana em cada fatia.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPizzas();
+            setupEventListeners();
+
+            // Carregar carrinho do localStorage
+            loadCartFromStorage();
+            updateCartCount();
+            renderCartModal();
+        });
+
+        // Pizza data baseado no exemplo da Giuseppe (pizzas clássicas italianas)
+        const pizzas = [{
+            id: 1,
+            name: 'Margherita',
+            description: 'Mussarela, tomate e manjericão - a clássica italiana',
+            price: 28.50,
+            image: 'https://placehold.co/400x300/d9534f/ffffff?text=Pizza+Margherita+com+mussarela+derretida+tomate+branco+e+manjericão+fresco'
+        }, {
+            id: 2,
+            name: 'Napolitana',
+            description: 'Ancho, azeitonas e parmesão - receita original de Nápoles',
+            price: 32.00,
+            image: 'https://placehold.co/400x300/d9534f/ffffff?text=Pizza+Napolitana+com+ancho+calabresa+azeitonas+pretas+e+parmesão+ralado'
+        }, {
+            id: 3,
+            name: 'Calabresa',
+            description: 'Calabresa italiana picante, cebola e pimenta',
+            price: 30.00,
+            image: 'https://placehold.co/400x300/d9534f/ffffff?text=Pizza+Calabresa+picante+italiana+com+cebola+crocante+e+pimenta+vermelha+fresca'
+        }, {
+            id: 4,
+            name: 'Quatro Queijos',
+            description: 'Mussarela, gorgonzola, provolone e parmesão',
+            price: 35.00,
+            image: 'https://placehold.co/400x300/d9534f/ffffff?text=Pizza+de+quatro+queijos+mussarela+gorgonzola+provolone+e+parmesão+em+massa+artesanal'
+        }, {
+            id: 5,
+            name: 'Mussarela',
+            description: 'Prosciutto cru, champignons e ervas mediterrâneas',
+            price: 38.00,
+            image: 'https://placehold.co/400x300/d9534f/ffffff?text=Pizza+Prosciutto+e+Funghi+com+prosciutto+cru+cogumelos+e+ervas+aromáticas'
+        }, {
+            id: 6,
+            name: 'Frango com Catupiry',
+            description: 'Presunto, champignons, alcachofras e azeitonas pretas',
+            price: 36.00,
+            image: 'https://placehold.co/400x300/d9534f/ffffff?text=Pizza+Capricciosa+com+presunto+champignons+alcachofras+e+azeitonas+pretas'
+        }];
+
+        // Carrinho de compras
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Carregar pizzas no menu
+        function loadPizzas() {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+            pizzas.forEach(pizza => {
+                const card = document.createElement('div');
+                card.className = 'pizza-card bg-white rounded-lg shadow-md overflow-hidden';
+                card.innerHTML = `
+          <img src="${pizza.image} " alt="${pizza.name} pizza with ${pizza.description.toLowerCase()}, Italian-style presentation with classic toppings " class="w-full h-48 object-cover " />
+          <div class="p-4 ">
+            <h4 class="text-xl font-semibold mb-2 ">${pizza.name}</h4>
+            <p class="text-gray-600 mb-3 ">${pizza.description}</p>
+            <div class="flex justify-between items-center ">
+              <span class="text-lg font-bold text-red-800 ">R$ ${pizza.price.toFixed(2)}</span>
+              <button onclick="addToCart(${pizza.id}) " class="bg-yellow-400 text-red-800 px-4 py-2 rounded-md hover:bg-yellow-300 transition font-semibold ">Adicionar</button>
+            </div>
+          </div>
+        `;
+                container.appendChild(card);
+            });
+        }
+
+        // Adicionar ao carrinho
+        function addToCart(pizzaId) {
+            const pizza = pizzas.find(p => p.id === pizzaId);
+            const existing = cart.find(item => item.id === pizzaId);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({...pizza,
+                    quantity: 1
+                });
+            }
+            saveCartToStorage();
+            updateCartCount();
+            renderCartModal();
+            showToast(`${pizza.name} adicionado ao carrinho!`);
+        }
+
+        // Renderizar modal do carrinho
+        function renderCartModal() {
+            const container = document.getElementById('cart-items-modal');
+            container.innerHTML = '';
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Seu carrinho está vazio.</p>';
+                document.getElementById('cart-total').textContent = 'Total: R$ 0,00';
+                return;
+            }
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                const itemEl = document.createElement('div');
+                itemEl.className = 'cart-item flex justify-between items-center py-2 border-b';
+                itemEl.innerHTML = `
+          <div>
+            <span class="font-semibold ">${item.name}</span>
+            <div class="flex items-center mt-1 ">
+              <button onclick="changeQuantity(${item.id}, -1) " class="bg-gray-200 px-2 rounded ">-</button>
+              <span class="mx-2 ">${item.quantity}</span>
+              <button onclick="changeQuantity(${item.id}, 1) " class="bg-gray-200 px-2 rounded ">+</button>
+            </div>
+          </div>
+          <span>R$ ${(item.price * item.quantity).toFixed(2)}</span>
+        `;
+                container.appendChild(itemEl);
+            });
+            document.getElementById('cart-total').textContent = `Total: R$ ${total.toFixed(2)}`;
+        }
+
+        // Alterar quantidade
+        function changeQuantity(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(item => item.id !== id);
+                }
+                saveCartToStorage();
+                updateCartCount();
+                renderCartModal();
+            }
+        }
+
+        // Salvar carrinho no localStorage
+        function saveCartToStorage() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function loadCartFromStorage() {
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+        }
+
+        // Atualizar contador do carrinho
+        function updateCartCount() {
+            const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu
+            document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+
+            // Carrinho modal
+            document.getElementById('cart-btn').addEventListener('click', () => {
+                document.getElementById('cart-modal').classList.remove('hidden');
+            });
+            document.getElementById('close-cart').addEventListener('click', () => {
+                document.getElementById('cart-modal').classList.add('hidden');
+            });
+            document.getElementById('clear-cart').addEventListener('click', () => {
+                cart = [];
+                saveCartToStorage();
+                updateCartCount();
+                renderCartModal();
+                document.getElementById('cart-modal').classList.add('hidden');
+                showToast('Carrinho limpo!');
+            });
+
+            // Checkout
+            document.getElementById('checkout-cart').addEventListener('click', () => {
+                document.getElementById('cart-modal').classList.add('hidden');
+                document.getElementById('checkout-modal').classList.remove('hidden');
+            });
+            document.getElementById('back-to-cart').addEventListener('click', () => {
+                document.getElementById('checkout-modal').classList.add('hidden');
+                document.getElementById('cart-modal').classList.remove('hidden');
+            });
+
+            // Form checkout
+            document.getElementById('checkout-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('checkout-name').value;
+                const address = document.getElementById('checkout-address').value;
+                const phone = document.getElementById('checkout-phone').value;
+
+                if (!name || !address || !phone) {
+                    alert('Por favor, preencha todos os campos.');
+                    return;
+                }
+
+                // Simular envio do pedido (em produção, enviaria para backend)
+                showToast('Pedido enviado com sucesso! Entraremos em contato em breve.');
+                cart = [];
+                saveCartToStorage();
+                updateCartCount();
+                renderCartModal();
+                document.getElementById('checkout-modal').classList.add('hidden');
+                // Reset form
+                e.target.reset();
+            });
+
+            // Fechar modais clicando fora
+            document.getElementById('cart-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'cart-modal') {
+                    document.getElementById('cart-modal').classList.add('hidden');
+                }
+            });
+            document.getElementById('checkout-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'checkout-modal') {
+                    document.getElementById('checkout-modal').classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
+</content>
+</create_file>
