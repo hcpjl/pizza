@@ -1,459 +1,169 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Domidogs Pizzaria</title>
-  <!-- Google Fonts: Inter for clean look -->
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #e57373;
-      --secondary: #fff8e1;
-      --accent: #ffd600;
-      --text: #2d2d2d;
-      --surface: #fff;
-      --muted: #f5f5f5;
-      --shadow: 0 2px 12px #0001;
-    }
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', Arial, sans-serif;
-      background: var(--muted);
-      color: var(--text);
-      scroll-behavior: smooth;
-    }
-    h2, h3 {
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin-top: 0;
-    }
-    section {
-      padding: 2.5rem 0;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-    /* Cards */
-    .cards {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.5rem;
-    }
-    .card {
-      background: var(--surface);
-      border-radius: 14px;
-      padding: 1.5rem 2rem;
-      min-width: 240px;
-      box-shadow: var(--shadow);
-      transition: transform 0.2s, box-shadow 0.2s;
-      animation: fadeInUp 0.7s;
-    }
-    .card:hover {
-      transform: translateY(-6px) scale(1.03);
-      box-shadow: 0 6px 24px #0002;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(40px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-    /* Section backgrounds */
-    #empresa, #visao-valores, #marketing, #socios {
-      background: var(--secondary);
-    }
-    #missao, #processos, #swot, #organograma {
-      background: var(--surface);
-    }
-    /* Headings */
-    section h2 {
-      text-align: center;
-      color: var(--primary);
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-    }
-    /* Empresa */
-    #empresa .card strong {
-      color: var(--primary);
-    }
-    /* Missao */
-    #missao p {
-      color: var(--primary);
-      text-align: center;
-      font-size: 1.2rem;
-      margin: 1.5rem auto;
-      max-width: 700px;
-      letter-spacing: 1px;
-      font-weight: 500;
-    }
-    /* Visao, Valores, Publico */
-    #visao-valores .card h3 {
-      color: var(--primary);
-      margin-bottom: 0.5rem;
-    }
-    #visao-valores .card ul, #visao-valores .card p {
-      color: var(--text);
-      font-size: 1rem;
-    }
-    /* Processos */
-    #processos ol {
-      max-width: 900px;
-      margin: 1.5rem auto;
-      color: var(--text);
-      font-size: 1.05rem;
-      padding-left: 1.2em;
-    }
-    #processos b {
-      color: var(--primary);
-    }
-    /* Marketing */
-    #marketing .card strong {
-      color: var(--primary);
-      font-size: 1.1em;
-    }
-    /* SWOT */
-    #swot .card strong {
-      color: var(--primary);
-      font-size: 1.1em;
-    }
-    /* Socios */
-    #socios .card b {
-      color: var(--primary);
-      font-size: 1.05em;
-    }
-    #socios .invest {
-      text-align: center;
-      color: var(--primary);
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-    /* Organograma */
-    #organograma .card span {
-      color: var(--primary);
-      font-weight: bold;
-    }
-    #organograma .card div {
-      background: var(--secondary);
-      border-radius: 8px;
-      margin-top: 0.6rem;
-      padding: 0.4rem 0;
-      color: var(--text);
-      font-weight: 500;
-      font-size: 1em;
-    }
-    /* Pedido */
-    #pedido {
-      background: var(--primary);
-      color: var(--surface);
-      padding: 2.5rem 0;
-      animation: fadeInUp 1s;
-    }
-    #pedido h2 {
-      color: var(--surface);
-    }
-    #pedido form {
-      background: var(--surface);
-      color: var(--text);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.1rem;
-      animation: fadeInUp 1.2s;
-    }
-    #pedido label {
-      font-weight: 500;
-      margin-bottom: 0.2rem;
-    }
-    #pedido input, #pedido select, #pedido textarea {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 0.7rem;
-      font-size: 1rem;
-      font-family: inherit;
-      background: var(--muted);
-      transition: border 0.2s;
-    }
-    #pedido input:focus, #pedido select:focus, #pedido textarea:focus {
-      border: 1.5px solid var(--primary);
-      outline: none;
-    }
-    #pedido button {
-      background: var(--accent);
-      color: var(--primary);
-      border: none;
-      border-radius: 8px;
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s, transform 0.2s;
-      margin-top: 0.5rem;
-      box-shadow: 0 2px 8px #0001;
-    }
-    #pedido button:hover {
-      background: var(--primary);
-      color: var(--surface);
-      transform: scale(1.03);
-    }
-    /* Responsive */
-    @media (max-width: 900px) {
-      .cards { flex-direction: column; align-items: center; }
-      .card { min-width: 220px; width: 90%; }
-    }
-    @media (max-width: 600px) {
-      section { padding: 1.2rem 0; }
-      .container { padding: 0 0.3rem; }
-      h2 { font-size: 1.3rem; }
-      #pedido form { padding: 1.2rem 0.5rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria Domidog's- Sabores Autênticos da </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero-bg {
+            background: linear-gradient(rgba(139, 0, 0, 0.7), rgba(139, 0, 0, 0.7)), url('https://placehold.co/1920x600/d9534f/ffffff?text=Pizza+fresca+e+saborosa+na+Pizzaria+Giuseppe');
+            background-size: cover;
+            background-position: center;
+            min-height: 500px;
+        }
+        
+        .pizza-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .pizza-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cart-item {
+            transition: background-color 0.2s ease;
+        }
+        
+        .cart-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
 </head>
-<body>
-  <!-- Pedido Section -->
-  <section id="pedido">
-    <div class="container">
-      <h2>Peça sua Pizza Online</h2>
-      <form id="form-pedido" autocomplete="on">
-        <label for="nome">Nome</label>
-        <input type="text" id="nome" name="nome" required placeholder="Seu nome">
 
-        <label for="telefone">Telefone</label>
-        <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999">
+<body class="bg-gray-100">
 
-        <label for="sabor">Sabor da Pizza</label>
-        <select id="sabor" name="sabor" required>
-          <option value="">Selecione</option>
-          <option>Calabresa</option>
-          <option>Margherita</option>
-          <option>Frango com Catupiry</option>
-          <option>Portuguesa</option>
-          <option>Quatro Queijos</option>
-        </select>
+    <header class="bg-red-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Pizzaaria Domidog's</h1>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#inicio" class="hover:text-yellow-300 transition">Início</a>
+                <a href="#menu" class="hover:text-yellow-300 transition">Menu</a>
+                <a href="#sobre" class="hover:text-yellow-300 transition">Sobre</a>
+                <a href="#contato" class="hover:text-yellow-300 transition">Contato</a>
+            </nav>
+            <button id="mobile-menu-toggle" class="md:hidden">
+        <img src="https://placehold.co/30x30/ffffff/000000?text=☰" alt="Mobile menu icon button for navigation options in Italian-style pizzaria" />
+      </button>
+            <button id="cart-btn" class="bg-yellow-400 text-red-800 px-4 py-2 rounded-md font-semibold shadow-md hover:bg-yellow-300 transition">
+        Carrinho (<span id="cart-count">0</span>)
+      </button>
+        </div>
+       
+        <div id="mobile-menu" class="hidden md:hidden bg-red-700 px-4 py-2">
+            <nav class="flex flex-col space-y-2">
+                <a href="#inicio" class="hover:text-yellow-300">Início</a>
+                <a href="#menu" class="hover:text-yellow-300">Menu</a>
+                <a href="#sobre" class="hover:text-yellow-300">Sobre</a>
+                <a href="#contato" class="hover:text-yellow-300">Contato</a>
+            </nav>
+        </div>
+    </header>
 
-        <label for="endereco">Endereço de Entrega</label>
-        <textarea id="endereco" name="endereco" rows="2" required placeholder="Rua, número, bairro"></textarea>
+    <section id="inicio" class="hero-bg text-white text-center py-20">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-bold mb-4 text-shadow-lg">Sabor Autêntico da Itália em Lauzane Paulista</h2>
+            <p class="text-xl mb-8">Pizzas artesanais, ingredientes frescos e tradição italiana há gerações.</p>
+            <a href="#menu" class="bg-yellow-400 text-red-800 px-8 py-3 rounded-full font-semibold shadow-lg hover:bg-yellow-300 transition">Ver Menu</a>
+        </div>
+    </section>
 
-        <button type="submit">Fazer Pedido</button>
-      </form>
+    
+    <section id="menu" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-red-800">Nosso Menu Tradicional</h3>
+            <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              
+            </div>
+        </div>
+    </section>
+
+    <section id="sobre" class="py-16 bg-gray-200">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold mb-8 text-red-800">Sobre a Pizzaria Domidog's</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <img src="https://placehold.co/600x400/d9534f/ffffff?text=Família+italiana+preparando+pizzas+artesanalmente+no+forno+a+lênha+em+cômodo+clássico+de+pizzaria" alt="Family portrait of Italian descendants preparing fresh pizzas in a traditional wood-fired oven at Giuseppe Pizzaria in Diadema, capturing authentic Italian pizza making heritage with rustic kitchen elements"
+                    class="rounded-lg shadow-lg" />
+                <div class="text-left">
+                    <p class="mb-4 text-lg">Fundada em 1995 por imigrantes italianos da Toscana, a Pizzaria Giuseppe traz o sabor autêntico da culinária italiana para Diadema.</p>
+                    <p class="mb-4">Nossa paixão por pizzas começou com receitas transmitidas de geração em geração, usando apenas ingredientes selecionados importados diretamente da Itália.</p>
+                    <p class="font-semibold text-red-800">Venha conhecer nossa tradição e sentir o calor da família Giuseppe!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contato" class="py-16 bg-white">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold mb-8 text-red-800">   Visite-nos em São Paulo </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="text-left">
+                    <h4 class="text-xl font-semibold mb-4 text-red-800">Horário de Funcionamento</h4>
+                    <ul class="mb-6">
+                        <li>Segunda a Sexta: 18h às 23h</li>
+                        <li>Sábado e Domingo: 17h às 24h</li>
+                        <li>Feriados: Consultar disponibilidade</li>
+                    </ul>
+                    <h4 class="text-xl font-semibold mb-2 text-red-800">Endereço</h4>
+                    <p>Rua Yvorne 776, Bairro Lauzane Paulista, São Paulo - SP</p>
+                    <p>Telefone: (11) 3912-3747</p>
+                </div>
+                <img src="" />
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal do Carrinho -->
+    <div id="cart-modal " class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center ">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 ">
+            <h3 class="text-2xl font-bold mb-4 text-red-800 ">Seu Carrinho</h3>
+            <div id="cart-items-modal " class="space-y-4 mb-6 ">
+                <!-- Itens do carrinho aqui -->
+            </div>
+            <div id="cart-total " class="text-xl font-bold text-right mb-4 ">Total: R$ 0,00</div>
+            <div class="flex space-x-4 ">
+                <button id="clear-cart " class="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition ">Limpar Carrinho</button>
+                <button id="close-cart " class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition ">Fechar</button>
+                <button id="checkout-cart " class="bg-yellow-400 text-red-800 px-4 py-2 rounded-md font-semibold hover:bg-yellow-300 transition ">Finalizar Pedido</button>
+            </div>
+        </div>
     </div>
-  </section>
 
-  <!-- Dados da Empresa -->
-  <section id="empresa">
-    <div class="container">
-      <h2>Dados da Empresa</h2>
-      <div class="cards">
-        <div class="card">
-          <strong>Endereço:</strong> Rua Yvonne, 776<br>
-          <strong>Bairro e cidade:</strong> Lauzane Paulista, São Paulo<br>
-          <strong>Telefone:</strong> (11) 3912-3747<br>
-          <strong>Email:</strong> atendimento@domidogspizzaria.com<br>
-          <strong>Site:</strong> www.domidogspizzaria.com
+    <!-- Modal de Checkout -->
+    <div id="checkout-modal " class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center ">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 ">
+            <h3 class="text-2xl font-bold mb-4 text-red-800 ">Finalizar Pedido</h3>
+            <form id="checkout-form " novalidate>
+                <label class="block mb-2 ">
+          Nome: <input type="text " id="checkout-name " required class="w-full p-2 border rounded-md " placeholder="Seu nome completo " />
+        </label>
+                <label class="block mb-2 ">
+          Endereço: <textarea id="checkout-address " required class="w-full p-2 border rounded-md " rows="3 " placeholder="Rua, número, bairro "></textarea>
+        </label>
+                <label class="block mb-4 ">
+          Telefone: <input type="tel " id="checkout-phone " required class="w-full p-2 border rounded-md " placeholder="(11) 98765-4321 " />
+        </label>
+                <div class="flex justify-between ">
+                    <button type="button " id="back-to-cart " class="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition ">Voltar ao Carrinho</button>
+                    <button type="submit " class="bg-green-600 text-white px-8 py-2 rounded-md hover:bg-green-700 transition font-semibold ">Fazer Pedido</button>
+                </div>
+            </form>
         </div>
-        <div class="card">
-          <strong>Razão social:</strong> Domidogs Pizzaria LTDA<br>
-          <strong>CNPJ:</strong> 10.393.772/0001-94<br>
-          <strong>Inscrição estadual:</strong> 031.946.722.358<br>
-          <strong>Data de abertura:</strong> 01/04/2024<br>
-          <strong>CEP:</strong> 02242-010
-        </div>
-      </div>
     </div>
-  </section>
 
-  <!-- Missão -->
-  <section id="missao">
-    <div class="container">
-      <h2>Missão</h2>
-      <p>
-        OFERECER PIZZAS DE MELHOR QUALIDADE, COM INGREDIENTES SELECIONADOS, GERANDO UMA EXPERIÊNCIA ESPECIAL PARA TODOS OS NOSSOS CLIENTES.
-      </p>
-    </div>
-  </section>
+    <!-- Footer elegante -->
+    <footer class="bg-red-800 text-white py-8 ">
+        <div class="container mx-auto px-4 text-center ">
+            <p>&copy; 2024 Pizzaria Giuseppe de Diadema. Todos os direitos reservados.</p>
+            <p class="mt-2 ">Tradição italiana em cada fatia.</p>
+        </div>
+    </footer>
 
-  <!-- Visão, Valores, Público -->
-  <section id="visao-valores">
-    <div class="container">
-      <div class="cards">
-        <div class="card">
-          <h3>Visão</h3>
-          <p>Ser reconhecida como a melhor opção de pizzaria pelos clientes e a comunidade da região.</p>
-        </div>
-        <div class="card">
-          <h3>Valores</h3>
-          <ul>
-            <li>Qualidade</li>
-            <li>Melhor atendimento</li>
-            <li>Ambiente confortável</li>
-            <li>Boa comunicação interna</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>Público Alvo</h3>
-          <p>Pessoas de todas as idades, que querem um ambiente confortável e aconchegante para aproveitar uma ótima refeição com a família, amigos ou namorado(a), ou clientes que não querem sair do conforto de sua casa, mas ainda assim querem aproveitar uma pizza de qualidade.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Processos Internos -->
-  <section id="processos">
-    <div class="container">
-      <h2>Processos Internos</h2>
-      <ol>
-        <li><b>Compra de matéria-prima:</b> Aquisição dos ingredientes que serão utilizados na produção e que são oferecidos por nossos fornecedores parceiros.</li>
-        <li><b>Armazenagem:</b> Após a compra dos ingredientes, é necessário armazená-los em locais específicos de acordo com cada ingrediente, a fim de conservá-los e manter a qualidade dos nossos produtos.</li>
-        <li><b>Produção:</b> Utilização dos ingredientes em estoque para a preparação das nossas deliciosas pizzas, desde o processo de fermentação da massa até a finalização da pizza.</li>
-        <li><b>Vendas:</b> Após prontas, entregamos nossas pizzas para os clientes que estão na pizzaria ou realizamos as entregas por delivery, prezando pela rapidez na entrega e cuidado com nossos produtos finalizados.</li>
-        <li><b>Atendimento ao Cliente:</b> Para melhor atender nossos clientes, buscamos ouvir, por meio de feedbacks e avaliações, sugestões para melhorar nosso atendimento e relacionamento com eles.</li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- Marketing -->
-  <section id="marketing">
-    <div class="container">
-      <h2>Marketing</h2>
-      <div class="cards">
-        <div class="card">
-          <strong>Divulgação do Estabelecimento</strong>
-          <ul>
-            <li>Instagram</li>
-            <li>Panfletos</li>
-            <li>Recomendação de clientes</li>
-          </ul>
-        </div>
-        <div class="card" style="background: var(--accent); color: var(--primary);">
-          <strong>Fidelidade dos Clientes</strong>
-          <ul>
-            <li>Combos promocionais</li>
-            <li>Cartão Fidelidade</li>
-            <li>Descontos ocasionais</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SWOT -->
-  <section id="swot">
-    <div class="container">
-      <h2>Análise SWOT</h2>
-      <div class="cards">
-        <div class="card">
-          <strong>Fraquezas</strong>
-          <ul>
-            <li>Dificuldade de atrair novos clientes</li>
-            <li>Falta de reconhecimento no mercado</li>
-          </ul>
-        </div>
-        <div class="card" style="background: var(--accent); color: var(--primary);">
-          <strong>Ameaças</strong>
-          <ul>
-            <li>Pizzarias que estão à mais tempo no mercado</li>
-            <li>Redes de fast food</li>
-          </ul>
-        </div>
-        <div class="card" style="background: var(--accent); color: var(--primary);">
-          <strong>Forças</strong>
-          <ul>
-            <li>Clima organizacional bom</li>
-            <li>Bom atendimento</li>
-            <li>Ambiente confortável e aconchegante para os clientes</li>
-          </ul>
-        </div>
-        <div class="card">
-          <strong>Oportunidades</strong>
-          <ul>
-            <li>Boa localização</li>
-            <li>Oferecimento de produtos de qualidade</li>
-            <li>Pet friendly</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Sócios e Investimento Inicial -->
-  <section id="socios">
-    <div class="container">
-      <h2>Sócios e Investimento Inicial</h2>
-      <div class="cards">
-        <div class="card">
-          <b>01. Daniely Vieira Fernandes</b><br>Chef de cozinha
-        </div>
-        <div class="card">
-          <b>02. Dayane Julia Santos</b><br>Comercial
-        </div>
-        <div class="card">
-          <b>03. João Victor Amaral</b><br>Financeiro
-        </div>
-        <div class="card">
-          <b>04. Maria Eduarda Silva</b><br>Recursos Humanos
-        </div>
-        <div class="card">
-          <b>05. Sofia Stephanie de Jesus</b><br>Administrativo
-        </div>
-      </div>
-      <div class="invest">
-        Investimento Inicial total: R$ 32.000,00
-      </div>
-    </div>
-  </section>
-
-  <!-- Organograma -->
-  <section id="organograma">
-    <div class="container">
-      <h2>Organograma</h2>
-      <div class="cards">
-        <div class="card" style="background: var(--accent);">
-          <span>Gerente RH</span>
-          <div>Maria Eduarda</div>
-        </div>
-        <div class="card" style="background: var(--accent);">
-          <span>Gerente Comercial</span>
-          <div>Dayane</div>
-        </div>
-        <div class="card" style="background: var(--accent);">
-          <span>Chefe de Cozinha</span>
-          <div>Daniely</div>
-          <div style="font-size: 0.95em;">Maria Luiza<br><small style="color:var(--primary);">Pizzaiola</small></div>
-        </div>
-        <div class="card" style="background: var(--accent);">
-          <span>Gerente ADM</span>
-          <div>Sofia</div>
-        </div>
-        <div class="card" style="background: var(--accent);">
-          <span>Gerente Financeiro</span>
-          <div>João Victor</div>
-          <div style="font-size: 0.95em;">Eduardo<br><small style="color:var(--primary);">Caixa</small></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <script>
-    // Redireciona para pedido.html após o envio do pedido
-    document.addEventListener('DOMContentLoaded', function() {
-      const form = document.getElementById('form-pedido');
-      if(form) {
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          form.querySelector('button').textContent = "Enviando...";
-          setTimeout(function() {
-            window.location.href = "pedido.html";
-          }, 800);
-        });
-      }
-    });
-  </script>
+  
 </body>
+
 </html>
+</content>
+</create_file>

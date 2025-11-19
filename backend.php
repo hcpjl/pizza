@@ -10,35 +10,7 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Criação das tabelas se não existirem
 $db->exec("
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    email TEXT UNIQUE,
-    senha TEXT,
-    admin INTEGER DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS pizzas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    ingredientes TEXT,
-    preco REAL,
-    imagem TEXT
-);
-CREATE TABLE IF NOT EXISTS pedidos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario_id INTEGER,
-    endereco TEXT,
-    total REAL,
-    status TEXT,
-    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS pedido_itens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pedido_id INTEGER,
-    pizza_id INTEGER,
-    quantidade INTEGER,
-    preco_unitario REAL
-);
+
 ");
 
 // Funções auxiliares

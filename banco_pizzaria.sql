@@ -1,119 +1,61 @@
--- Criação do banco de dados para Domidogs Pizzaria
-
--- Tabela de usuários (clientes)
-CREATE TABLE IF NOT EXISTS usuarios (
+-- Ingredientes
+CREATE TABLE IF NOT EXISTS ingredientes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    telefone TEXT NOT NULL,
-    email TEXT,
-    endereco TEXT NOT NULL,
-    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+    unidade TEXT NOT NULL, -- ex: 'g', 'ml', 'un'
+    estoque REAL NOT NULL DEFAULT 0
 );
 
--- Tabela de sabores de pizza
-CREATE TABLE IF NOT EXISTS pizzas (
+-- Relação pizza-ingredientes (receita)
+CREATE TABLE IF NOT EXISTS pizza_ingredientes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pizza_id INTEGER NOT NULL,
+    ingrediente_id INTEGER NOT NULL,
+    quantidade REAL NOT NULL,
+    FOREIGN KEY (pizza_id) REFERENCES pizzas(id),
+    FOREIGN KEY (ingrediente_id) REFERENCES ingredientes(id)
+);
+
+-- Controle de estoque de bebidas
+ALTER TABLE bebidas ADD COLUMN estoque INTEGER DEFAULT 0;
+
+-- Entregadores
+CREATE TABLE IF NOT EXISTS entregadores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    descricao TEXT,
-    preco REAL NOT NULL,
-    tipo TEXT CHECK(tipo IN ('salgada','doce')) NOT NULL DEFAULT 'salgada',
-    ativa INTEGER DEFAULT 1
+    telefone TEXT
 );
 
--- Tabela de pedidos
-CREATE TABLE IF NOT EXISTS pedidos (
+-- Pagamentos
+CREATE TABLE IF NOT EXISTS pagamentos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pedido_id INTEGER NOT NULL,
+    valor_pago REAL NOT NULL,
+    forma_pagamento TEXT NOT NULL, -- 'dinheiro', 'cartao', 'pix', etc
+    status TEXT NOT NULL DEFAULT 'pendente', -- 'pendente', 'pago', 'cancelado'
+    data_pagamento DATETIME,
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id)
+);
+
+-- Cupons/descontos
+CREATE TABLE IF NOT EXISTS cupons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL UNIQUE,
+    desconto_percentual REAL,
+    desconto_valor REAL,
+    validade DATETIME
+);
+
+-- Avaliações dos clientes
+CREATE TABLE IF NOT EXISTS avaliacoes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pedido_id INTEGER NOT NULL,
     usuario_id INTEGER NOT NULL,
-    data_pedido DATETIME DEFAULT CURRENT_TIMESTAMP,
-    status TEXT DEFAULT 'Processando',
-    endereco_entrega TEXT NOT NULL,
-    telefone TEXT NOT NULL,
-    observacoes TEXT,
+    nota INTEGER NOT NULL CHECK(nota BETWEEN 1 AND 5),
+    comentario TEXT,
+    data_avaliacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
--- Tabela de itens do pedido
-CREATE TABLE IF NOT EXISTS pedido_itens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pedido_id INTEGER NOT NULL,
-    pizza_id INTEGER NOT NULL,
-    quantidade INTEGER NOT NULL DEFAULT 1,
-    preco_unitario REAL NOT NULL,
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
-    FOREIGN KEY (pizza_id) REFERENCES pizzas(id)
-);
-
--- Tabela de sócios
-CREATE TABLE IF NOT EXISTS socios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    funcao TEXT NOT NULL
-);
-
--- Tabela de funcionários (organograma)
-CREATE TABLE IF NOT EXISTS funcionarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    cargo TEXT NOT NULL,
-    supervisor_id INTEGER,
-    FOREIGN KEY (supervisor_id) REFERENCES funcionarios(id)
-);
-
--- Tabela de processos internos (para documentação)
-CREATE TABLE IF NOT EXISTS processos_internos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    etapa TEXT NOT NULL,
-    descricao TEXT NOT NULL
-);
-
--- Tabela de marketing (ações e fidelidade)
-CREATE TABLE IF NOT EXISTS marketing (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tipo TEXT NOT NULL, -- 'divulgacao' ou 'fidelidade'
-    descricao TEXT NOT NULL
-);
-
--- Tabela de valores e visão
-CREATE TABLE IF NOT EXISTS valores (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tipo TEXT NOT NULL, -- 'missao', 'visao', 'valor'
-    descricao TEXT NOT NULL
-);
-
--- Tabela de investimentos iniciais
-CREATE TABLE IF NOT EXISTS investimentos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    descricao TEXT NOT NULL,
-    valor REAL NOT NULL
-);
-
--- Tabela de SWOT
-CREATE TABLE IF NOT EXISTS swot (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tipo TEXT NOT NULL, -- 'forca', 'fraqueza', 'oportunidade', 'ameaca'
-    descricao TEXT NOT NULL
-);
-
--- Tabela de dados da empresa
-CREATE TABLE IF NOT EXISTS dados_empresa (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    campo TEXT NOT NULL,
-    valor TEXT NOT NULL
-);
-
--- Tabela de bebidas
-CREATE TABLE IF NOT EXISTS bebidas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    preco REAL NOT NULL,
-    ativa INTEGER DEFAULT 1
-);
-
--- Tabela de logs de pedidos (opcional)
-CREATE TABLE IF NOT EXISTS pedidos_log (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pedido_id INTEGER NOT NULL,
-    status TEXT NOT NULL,
-    data_log DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id)
-);
+-- Atualize os relacionamentos se necessário nos outros arquivos.
