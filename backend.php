@@ -10,7 +10,40 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // Criação das tabelas se não existirem
 $db->exec("
-
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT,
+    email TEXT UNIQUE,
+    senha TEXT,
+    admin INTEGER DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS pizzas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT,
+    ingredientes TEXT,
+    preco REAL,
+    imagem TEXT
+);
+CREATE TABLE IF NOT EXISTS pedidos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INTEGER,
+    endereco TEXT,
+    total REAL,
+    status TEXT DEFAULT 'Pendente',
+    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS pedido_itens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pedido_id INTEGER,
+    pizza_id INTEGER,
+    quantidade INTEGER,
+    preco_unitario REAL
+);
+CREATE TABLE IF NOT EXISTS fidelidade (
+    usuario_id INTEGER PRIMARY KEY,
+    contador INTEGER DEFAULT 0,
+    free_pizzas INTEGER DEFAULT 0
+);
 ");
 
 // Funções auxiliares
@@ -27,6 +60,56 @@ function usuario_atual() {
 $rota = $_GET['rota'] ?? '';
 
 switch ($rota) {
+    // rota de fidelidade: retornar contagem para usuário logado
+    case 'get_loyalty':
+        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
+        $uid = usuario_atual()['id'];
+        $stmt = $db->prepare("SELECT contador, free_pizzas FROM fidelidade WHERE usuario_id=?");
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            $stmt = $db->prepare("INSERT INTO fidelidade (usuario_id, contador, free_pizzas) VALUES (?,0,0)");
+            $stmt->execute([$uid]);
+            $row = ['contador'=>0,'free_pizzas'=>0];
+        }
+        resposta(['count'=>intval($row['contador']), 'free'=>intval($row['free_pizzas'])]);
+        break;
+
+    case 'increment_loyalty':
+        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
+        $dados = json_decode(file_get_contents('php://input'), true);
+        $add = intval($dados['add'] ?? 1);
+        $uid = usuario_atual()['id'];
+        $db->beginTransaction();
+        $stmt = $db->prepare("INSERT OR IGNORE INTO fidelidade (usuario_id, contador, free_pizzas) VALUES (?,0,0)");
+        $stmt->execute([$uid]);
+        $stmt = $db->prepare("UPDATE fidelidade SET contador = contador + ?, free_pizzas = free_pizzas + (contador + ?)/10 WHERE usuario_id = ?");
+        // simpler approach: fetch, compute and update
+        $stmt2 = $db->prepare("SELECT contador, free_pizzas FROM fidelidade WHERE usuario_id=?");
+        $stmt2->execute([$uid]);
+        $row = $stmt2->fetch(PDO::FETCH_ASSOC);
+        $contador = intval($row['contador']) + $add;
+        $free = intval($row['free_pizzas']);
+        while ($contador >= 10) { $contador -= 10; $free++; }
+        $stmt3 = $db->prepare("UPDATE fidelidade SET contador=?, free_pizzas=? WHERE usuario_id=?");
+        $stmt3->execute([$contador, $free, $uid]);
+        $db->commit();
+        resposta(['count'=>$contador,'free'=>$free]);
+        break;
+
+    case 'redeem_loyalty':
+        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
+        $uid = usuario_atual()['id'];
+        $stmt = $db->prepare("SELECT free_pizzas FROM fidelidade WHERE usuario_id=?");
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row || intval($row['free_pizzas']) <= 0) resposta(['erro'=>'Nenhuma pizza grátis disponível'], 400);
+        $newFree = intval($row['free_pizzas']) - 1;
+        $stmt2 = $db->prepare("UPDATE fidelidade SET free_pizzas=? WHERE usuario_id=?");
+        $stmt2->execute([$newFree, $uid]);
+        resposta(['success'=>true,'free'=>$newFree]);
+        break;
+
     // Autenticação
     case 'registrar':
         $dados = json_decode(file_get_contents('php://input'), true);
