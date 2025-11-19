@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Margherita",
+    "description": "Pizza clássica com molho de tomate, queijo mozzarella e manjericão.",
+    "price": 25.00,
+    "ingredients": ["molho de tomate", "queijo mozzarella", "manjericão"]
+  },
+  {
+    "id": 2,
+    "name": "Pepperoni",
+    "description": "Pizza com molho de tomate, queijo mozzarella e fatias de pepperoni.",
+    "price": 30.00,
+    "ingredients": ["molho de tomate", "queijo mozzarella", "pepperoni"]
+  },
+  {
+    "id": 3,
+    "name": "Quatro Queijos",
+    "description": "Uma deliciosa combinação de quatro queijos: mozzarella, gorgonzola, parmesão e queijo de cabra.",
+    "price": 35.00,
+    "ingredients": ["molho de tomate", "queijo mozzarella", "gorgonzola", "parmesão", "queijo de cabra"]
+  },
+  {
+    "id": 4,
+    "name": "Frango com Catupiry",
+    "description": "Pizza com frango desfiado, catupiry e azeitonas.",
+    "price": 32.00,
+    "ingredients": ["molho de tomate", "frango desfiado", "catupiry", "azeitonas"]
+  },
+  {
+    "id": 5,
+    "name": "Vegetariana",
+    "description": "Pizza com molho de tomate, queijo mozzarella e uma variedade de vegetais frescos.",
+    "price": 28.00,
+    "ingredients": ["molho de tomate", "queijo mozzarella", "pimentão", "cebola", "champignon", "azeitonas"]
+  }
+]
