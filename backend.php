@@ -1,232 +1,329 @@
 <?php
-// backend.php - Backend básico para pizzaria
-
-header('Content-Type: application/json');
 session_start();
 
-// Configuração do banco de dados (SQLite para simplicidade)
-$db = new PDO('sqlite:pizzaria.db');
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Criação das tabelas se não existirem
-$db->exec("
-CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    email TEXT UNIQUE,
-    senha TEXT,
-    admin INTEGER DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS pizzas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    ingredientes TEXT,
-    preco REAL,
-    imagem TEXT
-);
-CREATE TABLE IF NOT EXISTS pedidos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario_id INTEGER,
-    endereco TEXT,
-    total REAL,
-    status TEXT DEFAULT 'Pendente',
-    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS pedido_itens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pedido_id INTEGER,
-    pizza_id INTEGER,
-    quantidade INTEGER,
-    preco_unitario REAL
-);
-CREATE TABLE IF NOT EXISTS fidelidade (
-    usuario_id INTEGER PRIMARY KEY,
-    contador INTEGER DEFAULT 0,
-    free_pizzas INTEGER DEFAULT 0
-);
-");
+$PIZZAS = [
+    1 => ['id'=>1,'nome'=>'Margherita','ingredientes'=>'Tomate, Mozzarella, Manjericão','preco'=>28.50,'imagem'=>'images/queijo.jpg'],
+    2 => ['id'=>2,'nome'=>'Pepperoni','ingredientes'=>'Pepperoni, Mozzarella','preco'=>34.90,'imagem'=>'images/pepperoni.jpg'],
+    3 => ['id'=>3,'nome'=>'Quatro Queijos','ingredientes'=>'Parmesão, Gorgonzola, Mozzarella, Catupiry','preco'=>39.00,'imagem'=>'images/queijos.jpg'],
+    4 => ['id'=>4,'nome'=>'Portuguesa','ingredientes'=>'Presunto, Cebola, Ovo, Azeitona','preco'=>36.00,'imagem'=>'images/portuguesa.jpg'],
+];
 
-// Funções auxiliares
-function resposta($dados, $status = 200) {
-    http_response_code($status);
-    echo json_encode($dados);
+// utilitários de sessão/carrinho
+if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+if (!isset($_SESSION['orders'])) $_SESSION['orders'] = [];
+$rota = $_GET['rota'] ?? 'site';
+
+function find_pizza($id) {
+    global $PIZZAS;
+    return $PIZZAS[$id] ?? null;
+}
+function add_to_cart($id, $qty=1) {
+    $id = (int)$id; $qty = max(1,(int)$qty);
+    if (!find_pizza($id)) return;
+    if (!isset($_SESSION['cart'][$id])) $_SESSION['cart'][$id] = 0;
+    $_SESSION['cart'][$id] += $qty;
+}
+function update_cart($id, $qty) {
+    $id = (int)$id; $qty = (int)$qty;
+    if ($qty <= 0) { unset($_SESSION['cart'][$id]); return; }
+    if (find_pizza($id)) $_SESSION['cart'][$id] = $qty;
+}
+function remove_from_cart($id) {
+    $id = (int)$id; unset($_SESSION['cart'][$id]);
+}
+function clear_cart() { $_SESSION['cart'] = []; }
+function cart_items() {
+    $items = [];
+    foreach ($_SESSION['cart'] as $id => $qty) {
+        $p = find_pizza($id);
+        if (!$p) continue;
+        $items[] = ['pizza'=>$p,'qty'=>$qty,'subtotal'=>$p['preco']*$qty];
+    }
+    return $items;
+}
+function cart_total() {
+    $t = 0;
+    foreach (cart_items() as $it) $t += $it['subtotal'];
+    return $t;
+}
+
+// processar ações via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($rota === 'add_to_cart') {
+        $id = $_POST['id'] ?? 0; $qty = $_POST['qty'] ?? 1;
+        add_to_cart($id,$qty);
+        $_SESSION['flash'] = 'Item adicionado ao carrinho.';
+        header('Location: backend.php?rota=site'); exit;
+    }
+    if ($rota === 'update_cart') {
+        foreach ($_POST['qty'] ?? [] as $id => $q) update_cart($id,$q);
+        $_SESSION['flash'] = 'Carrinho atualizado.';
+        header('Location: backend.php?rota=view_cart'); exit;
+    }
+    if ($rota === 'remove_from_cart') {
+        remove_from_cart($_POST['id'] ?? 0);
+        $_SESSION['flash'] = 'Item removido.';
+        header('Location: backend.php?rota=view_cart'); exit;
+    }
+    if ($rota === 'clear_cart') {
+        clear_cart();
+        $_SESSION['flash'] = 'Carrinho limpo.';
+        header('Location: backend.php?rota=view_cart'); exit;
+    }
+    if ($rota === 'checkout') {
+        $name = trim($_POST['name'] ?? '');
+        $address = trim($_POST['address'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        if (!$name || !$address || !$phone || empty($_SESSION['cart'])) {
+            $_SESSION['flash'] = 'Preencha todos os campos e tenha ao menos 1 item no carrinho.';
+            header('Location: backend.php?rota=view_cart'); exit;
+        }
+        $order = [
+            'id' => time(),
+            'nome' => $name,
+            'endereco' => $address,
+            'telefone' => $phone,
+            'itens' => cart_items(),
+            'total' => cart_total(),
+            'criado_em' => date('Y-m-d H:i:s'),
+            'status' => 'Pendente'
+        ];
+        $_SESSION['orders'][] = $order;
+        clear_cart();
+        $_SESSION['flash'] = 'Pedido realizado com sucesso! Pedido #' . $order['id'];
+        header('Location: backend.php?rota=site'); exit;
+    }
+}
+
+// view do carrinho (página dedicada)
+if ($rota === 'view_cart') {
+    ?><!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carrinho - Pizzaria</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+<div class="container mx-auto px-4 py-8">
+    <a href="backend.php?rota=site">&larr; Voltar ao cardápio</a>
+    <h2 class="text-2xl font-bold mb-4">Seu Carrinho</h2>
+    <?php if (!empty($_SESSION['flash'])){ echo '<p style="color:green">'.htmlspecialchars($_SESSION['flash']).'</p>'; unset($_SESSION['flash']); } ?>
+    <?php $items = cart_items(); if (empty($items)): ?>
+        <p>Seu carrinho está vazio.</p>
+        <p><a href="backend.php?rota=site" class="cta-btn">Ver cardápio</a></p>
+    <?php else: ?>
+        <form method="post" action="backend.php?rota=update_cart">
+            <table style="width:100%;border-collapse:collapse">
+                <thead><tr><th align="left">Pizza</th><th>Preço</th><th>Quantidade</th><th>Subtotal</th><th></th></tr></thead>
+                <tbody>
+                <?php foreach($items as $it): $p = $it['pizza']; ?>
+                    <tr class="cart-item">
+                        <td><?=htmlspecialchars($p['nome'])?><div style="font-size:0.9em;color:#666"><?=htmlspecialchars($p['ingredientes'])?></div></td>
+                        <td>R$ <?=number_format($p['preco'],2,',','.')?></td>
+                        <td><input type="number" name="qty[<?=$p['id']?>]" value="<?=intval($it['qty'])?>" min="0" style="width:64px"></td>
+                        <td>R$ <?=number_format($it['subtotal'],2,',','.')?></td>
+                        <td>
+                            <form method="post" action="backend.php?rota=remove_from_cart" style="display:inline">
+                                <input type="hidden" name="id" value="<?=$p['id']?>">
+                                <button type="submit" class="add-btn">Remover</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <div style="text-align:right;margin-top:12px;font-weight:bold">Total: R$ <?=number_format(cart_total(),2,',','.')?></div>
+            <div style="margin-top:12px;display:flex;gap:8px;margin-bottom:12px;">
+                <button type="submit" class="add-btn">Atualizar</button>
+        </form>
+        <form method="post" action="backend.php?rota=clear_cart" style="display:inline"><button type="submit" class="bg-gray-400 text-white px-4 py-2 rounded-md">Limpar Carrinho</button></form>
+        <a href="#checkout" class="cta-btn">Finalizar Pedido</a>
+            </div>
+
+        <hr style="margin:18px 0">
+        <h3>Finalizar Pedido</h3>
+        <form id="checkout-form" method="post" action="backend.php?rota=checkout">
+            <label>Nome:<br><input name="name" required class="w-full p-2 border rounded-md"></label><br>
+            <label>Endereço:<br><textarea name="address" required class="w-full p-2 border rounded-md"></textarea></label><br>
+            <label>Telefone:<br><input name="phone" required class="w-full p-2 border rounded-md"></label><br>
+            <div style="margin-top:8px"><button type="submit" class="bg-green-600 text-white px-8 py-2 rounded-md">Fazer Pedido</button></div>
+        </form>
+    <?php endif; ?>
+</div>
+</body>
+</html>
+<?php
     exit;
 }
-function usuario_atual() {
-    return $_SESSION['usuario'] ?? null;
+
+// rota site: renderiza todo o front-end (conteúdo do index.html) no PHP
+if ($rota === 'site' || $rota === '') {
+    ?><!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Domidog's - Sabores Autênticos da Itália</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+    <!-- header: nova topbar branca + rootbar vermelha abaixo -->
+    <header role="banner">
+        <!-- top white bar (logo + auth) -->
+        <div class="top-nav bg-white shadow-sm">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                <!-- header centralizado: logo + nav + carrinho -->
+                <div class="header-center flex items-center gap-6">
+                    <a href="backend.php?rota=site" class="flex items-center gap-3" aria-label="Página inicial Domidog's">
+                        <img src="https://placehold.co/40x40/d9534f/ffffff?text=D" alt="Logo Domidog's" class="w-10 h-10 rounded-full" />
+                        <span class="font-bold text-lg text-red-800">Domidog's</span>
+                    </a>
+                    <nav class="hidden lg:flex gap-6 text-sm" aria-label="Navegação principal top">
+                        <a href="#menu" class="text-gray-700 hover:text-red-800">Cardápio</a>
+                        <a href="#sobre" class="text-gray-700 hover:text-red-800">Sobre</a>
+                    </nav>
+                    <a href="backend.php?rota=view_cart" id="cart-btn" class="bg-yellow-400 text-red-800 px-4 py-2 rounded-md font-semibold shadow-md hover:bg-yellow-300 transition focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                        aria-haspopup="dialog" aria-controls="cart-modal" aria-label="Abrir carrinho">
+                        Carrinho (<span id="cart-count"><?=array_sum($_SESSION['cart'])?></span>)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- rootbar / hero stripe -->
+        <div class="hero-strip bg-red-800">
+            <div class="container mx-auto px-4 py-8 relative">
+                <!-- card central sobrepondo a faixa -->
+                <div class="hero-card mx-auto rounded-lg bg-white shadow-2xl grid grid-cols-1 lg:grid-cols-2 gap-6 items-center max-w-5xl p-8"
+                    role="region" aria-labelledby="hero-title">
+                    <div>
+                        <h1 id="hero-title"
+                            class="text-2xl lg:text-3xl font-bold text-gray-800 mb-3">Peça sua pizza em casa ou retire na loja mais próxima</h1>
+                        <p class="text-gray-600 mb-6">Informe seu endereço para encontrarmos a pizzaria mais próxima e mostrar o
+                            cardápio disponível na sua região.</p>
+
+                        <form id="store-search-form" method="get" action="backend.php?rota=site" class="flex gap-3 items-center"
+                            aria-label="Buscar loja por endereço">
+                            <label for="address-input" class="sr-only">Endereço</label>
+                            <input id="address-input" name="address" type="text" placeholder="Em que endereço você está?"
+                                class="w-full p-4 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-red-300" />
+                            <button type="submit"
+                                class="cta-btn inline-block">Encontrar</button>
+                        </form>
+
+                        <div class="mt-4 text-sm text-gray-500">Entrega estimada: <strong id="eta-placeholder">30–45 min</strong>
+                        </div>
+                    </div>
+
+                    <!-- imagem decorativa da pizza -->
+                    <div class="hidden lg:flex justify-end">
+                        <img src="https://placehold.co/520x360/d9534f/ffffff?text=Pizza+quente"
+                            alt="Pizza quente e apetitosa"
+                            class="rounded-lg object-cover w-full h-56 shadow-lg" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu de Pizzas com design elegante -->
+    <section id="menu" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-red-800">Nosso Menu Tradicional</h3>
+            <div id="menu-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <?php foreach ($PIZZAS as $p): ?>
+                <div class="pizza-card bg-white rounded-lg shadow-lg">
+                    <img src="<?=$p['imagem']?>" alt="<?=htmlspecialchars($p['nome'])?>" class="w-full h-64 object-cover rounded-t-lg" />
+                    <div class="p-4">
+                        <h4 class="text-lg font-semibold"><?=htmlspecialchars($p['nome'])?></h4>
+                        <p class="text-sm text-gray-600 mb-2"><?=htmlspecialchars($p['ingredientes'])?></p>
+                        <div class="flex items-center justify-between">
+                            <div class="pizza-price">R$ <?=number_format($p['preco'],2,',','.')?></div>
+                            <form method="post" action="backend.php?rota=add_to_cart" style="display:flex;gap:8px;align-items:center">
+                                <input type="hidden" name="id" value="<?=$p['id']?>
+                                <input type="number" name="qty" value="1" min="1" style="width:64px">
+                                <button type="submit" class="add-btn">Adicionar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Nós, contanto a história -->
+    <section id="sobre" class="py-16 bg-gray-200">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold mb-8 text-red-800">Sobre a Pizzaria Giuseppe</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <img src="https://placehold.co/600x400/d9534f/ffffff?text=Família+italiana+preparando+pizzas+artesanalmente+no+forno+a+lênha+em+cômodo+clássico+de+pizzaria"
+                    alt="Sobre a Pizzaria" class="rounded-lg shadow-lg" />
+                <div class="text-left">
+                    <p class="mb-4 text-lg">Fundada em 1995 por imigrantes italianos da Toscana, a Pizzaria Giuseppe traz o sabor
+                        autêntico da culinária italiana para Diadema.</p>
+                    <p class="mb-4">Nossa paixão por pizzas começou com receitas transmitidas de geração em geração, usando apenas
+                        ingredientes selecionados importados diretamente da Itália.</p>
+                    <p class="font-semibold text-red-800">Venha conhecer nossa tradição e sentir o calor da família Giuseppe!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato com localização -->
+    <section id="contato" class="py-16 bg-white">
+        <div class="container mx-auto px-4 text-center">
+            <h3 class="text-3xl font-bold mb-8 text-red-800">Visite-nos em Diadema</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="text-left">
+                    <h4 class="text-xl font-semibold mb-4 text-red-800">Horário de Funcionamento</h4>
+                    <ul class="mb-6">
+                        <li>Segunda a Sexta: 18h às 23h</li>
+                        <li>Sábado e Domingo: 17h às 24h</li>
+                        <li>Feriados: Consultar disponibilidade</li>
+                    </ul>
+                    <h4 class="text-xl font-semibold mb-2 text-red-800">Endereço</h4>
+                    <p>Rua Italia, 123 - Centro, Diadema-SP</p>
+                    <p>Telefone: (11) 9876-54321</p>
+                </div>
+                <img src="" alt="">
+            </div>
+        </div>
+    </section>
+
+    <!-- Modais (marc-up copiado do index; sem JS funcionam como elementos estáticos) -->
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 class="text-2xl font-bold mb-4 text-red-800">Seu Carrinho</h3>
+            <div id="cart-items-modal" class="space-y-4 mb-6">
+                <!-- Itens do carrinho aqui (usar página de carrinho em vez de modal sem JS) -->
+            </div>
+            <div id="cart-total" class="text-xl font-bold text-right mb-4">Total: R$ 0,00</div>
+            <div class="flex space-x-4">
+                <a href="backend.php?rota=view_cart" class="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition">Ver Carrinho</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-red-800 text-white py-8 ">
+        <div class="container mx-auto px-4 text-center ">
+            <p>&copy; 2024 Pizzaria Giuseppe de Diadema. Todos os direitos reservados.</p>
+            <p class="mt-2 ">Tradição italiana em cada fatia.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
+<?php
+    exit;
 }
 
-// Rotas
-$rota = $_GET['rota'] ?? '';
-
-switch ($rota) {
-    // rota de fidelidade: retornar contagem para usuário logado
-    case 'get_loyalty':
-        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
-        $uid = usuario_atual()['id'];
-        $stmt = $db->prepare("SELECT contador, free_pizzas FROM fidelidade WHERE usuario_id=?");
-        $stmt->execute([$uid]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) {
-            $stmt = $db->prepare("INSERT INTO fidelidade (usuario_id, contador, free_pizzas) VALUES (?,0,0)");
-            $stmt->execute([$uid]);
-            $row = ['contador'=>0,'free_pizzas'=>0];
-        }
-        resposta(['count'=>intval($row['contador']), 'free'=>intval($row['free_pizzas'])]);
-        break;
-
-    case 'increment_loyalty':
-        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $add = intval($dados['add'] ?? 1);
-        $uid = usuario_atual()['id'];
-        $db->beginTransaction();
-        $stmt = $db->prepare("INSERT OR IGNORE INTO fidelidade (usuario_id, contador, free_pizzas) VALUES (?,0,0)");
-        $stmt->execute([$uid]);
-        $stmt = $db->prepare("UPDATE fidelidade SET contador = contador + ?, free_pizzas = free_pizzas + (contador + ?)/10 WHERE usuario_id = ?");
-        // simpler approach: fetch, compute and update
-        $stmt2 = $db->prepare("SELECT contador, free_pizzas FROM fidelidade WHERE usuario_id=?");
-        $stmt2->execute([$uid]);
-        $row = $stmt2->fetch(PDO::FETCH_ASSOC);
-        $contador = intval($row['contador']) + $add;
-        $free = intval($row['free_pizzas']);
-        while ($contador >= 10) { $contador -= 10; $free++; }
-        $stmt3 = $db->prepare("UPDATE fidelidade SET contador=?, free_pizzas=? WHERE usuario_id=?");
-        $stmt3->execute([$contador, $free, $uid]);
-        $db->commit();
-        resposta(['count'=>$contador,'free'=>$free]);
-        break;
-
-    case 'redeem_loyalty':
-        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
-        $uid = usuario_atual()['id'];
-        $stmt = $db->prepare("SELECT free_pizzas FROM fidelidade WHERE usuario_id=?");
-        $stmt->execute([$uid]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row || intval($row['free_pizzas']) <= 0) resposta(['erro'=>'Nenhuma pizza grátis disponível'], 400);
-        $newFree = intval($row['free_pizzas']) - 1;
-        $stmt2 = $db->prepare("UPDATE fidelidade SET free_pizzas=? WHERE usuario_id=?");
-        $stmt2->execute([$newFree, $uid]);
-        resposta(['success'=>true,'free'=>$newFree]);
-        break;
-
-    // Autenticação
-    case 'registrar':
-        $dados = json_decode(file_get_contents('php://input'), true);
-        if (!$dados['nome'] || !$dados['email'] || !$dados['senha']) resposta(['erro'=>'Dados obrigatórios'], 400);
-        $hash = password_hash($dados['senha'], PASSWORD_DEFAULT);
-        try {
-            $stmt = $db->prepare("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
-            $stmt->execute([$dados['nome'], $dados['email'], $hash]);
-            resposta(['sucesso'=>true]);
-        } catch (PDOException $e) {
-            resposta(['erro'=>'Email já cadastrado'], 400);
-        }
-        break;
-    case 'login':
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $stmt = $db->prepare("SELECT * FROM usuarios WHERE email=?");
-        $stmt->execute([$dados['email']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($user && password_verify($dados['senha'], $user['senha'])) {
-            $_SESSION['usuario'] = ['id'=>$user['id'], 'nome'=>$user['nome'], 'admin'=>$user['admin']];
-            resposta(['sucesso'=>true, 'usuario'=>$_SESSION['usuario']]);
-        } else {
-            resposta(['erro'=>'Credenciais inválidas'], 401);
-        }
-        break;
-    case 'logout':
-        session_destroy();
-        resposta(['sucesso'=>true]);
-        break;
-
-    // Pizzas
-    case 'listar_pizzas':
-        $pizzas = $db->query("SELECT * FROM pizzas")->fetchAll(PDO::FETCH_ASSOC);
-        resposta($pizzas);
-        break;
-    case 'adicionar_pizza':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $stmt = $db->prepare("INSERT INTO pizzas (nome, ingredientes, preco, imagem) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$dados['nome'], $dados['ingredientes'], $dados['preco'], $dados['imagem']]);
-        resposta(['sucesso'=>true]);
-        break;
-    case 'editar_pizza':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $stmt = $db->prepare("UPDATE pizzas SET nome=?, ingredientes=?, preco=?, imagem=? WHERE id=?");
-        $stmt->execute([$dados['nome'], $dados['ingredientes'], $dados['preco'], $dados['imagem'], $dados['id']]);
-        resposta(['sucesso'=>true]);
-        break;
-    case 'remover_pizza':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $id = $_GET['id'] ?? 0;
-        $stmt = $db->prepare("DELETE FROM pizzas WHERE id=?");
-        $stmt->execute([$id]);
-        resposta(['sucesso'=>true]);
-        break;
-
-    // Pedidos
-    case 'fazer_pedido':
-        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $db->beginTransaction();
-        $stmt = $db->prepare("INSERT INTO pedidos (usuario_id, endereco, total, status) VALUES (?, ?, ?, 'Pendente')");
-        $stmt->execute([usuario_atual()['id'], $dados['endereco'], $dados['total']]);
-        $pedido_id = $db->lastInsertId();
-        foreach ($dados['itens'] as $item) {
-            $stmt = $db->prepare("INSERT INTO pedido_itens (pedido_id, pizza_id, quantidade, preco_unitario) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$pedido_id, $item['pizza_id'], $item['quantidade'], $item['preco_unitario']]);
-        }
-        $db->commit();
-        resposta(['sucesso'=>true, 'pedido_id'=>$pedido_id]);
-        break;
-    case 'meus_pedidos':
-        if (!usuario_atual()) resposta(['erro'=>'Login necessário'], 403);
-        $stmt = $db->prepare("SELECT * FROM pedidos WHERE usuario_id=? ORDER BY criado_em DESC");
-        $stmt->execute([usuario_atual()['id']]);
-        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($pedidos as &$pedido) {
-            $stmt2 = $db->prepare("SELECT pi.*, p.nome FROM pedido_itens pi JOIN pizzas p ON pi.pizza_id=p.id WHERE pedido_id=?");
-            $stmt2->execute([$pedido['id']]);
-            $pedido['itens'] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-        }
-        resposta($pedidos);
-        break;
-    case 'todos_pedidos':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $pedidos = $db->query("SELECT * FROM pedidos ORDER BY criado_em DESC")->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($pedidos as &$pedido) {
-            $stmt2 = $db->prepare("SELECT pi.*, p.nome FROM pedido_itens pi JOIN pizzas p ON pi.pizza_id=p.id WHERE pedido_id=?");
-            $stmt2->execute([$pedido['id']]);
-            $pedido['itens'] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-        }
-        resposta($pedidos);
-        break;
-    case 'atualizar_status_pedido':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $stmt = $db->prepare("UPDATE pedidos SET status=? WHERE id=?");
-        $stmt->execute([$dados['status'], $dados['id']]);
-        resposta(['sucesso'=>true]);
-        break;
-
-    // Usuários (admin)
-    case 'listar_usuarios':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $usuarios = $db->query("SELECT id, nome, email, admin FROM usuarios")->fetchAll(PDO::FETCH_ASSOC);
-        resposta($usuarios);
-        break;
-    case 'tornar_admin':
-        if (!usuario_atual() || !usuario_atual()['admin']) resposta(['erro'=>'Acesso negado'], 403);
-        $dados = json_decode(file_get_contents('php://input'), true);
-        $stmt = $db->prepare("UPDATE usuarios SET admin=1 WHERE id=?");
-        $stmt->execute([$dados['id']]);
-        resposta(['sucesso'=>true]);
-        break;
-
-    default:
-        resposta(['erro'=>'Rota não encontrada'], 404);
-}
+// fallback
+header('Location: backend.php?rota=site');
+exit;
 ?>
