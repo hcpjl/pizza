@@ -1,0 +1,203 @@
+/* CSS movido do index.html (hero e cards) */
+.hero-bg {
+    background: linear-gradient(rgba(139, 0, 0, 0.7), rgba(139, 0, 0, 0.7)), url('https://placehold.co/1920x600/d9534f/ffffff?text=Pizza+fresca+e+saborosa+na+Pizzaria+Giuseppe');
+    background-size: cover;
+    background-position: center;
+    min-height: 500px;
+}
+.hero-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.35));
+    pointer-events: none;
+}
+
+/* Nova: remover animação dos cards de pizza - blocos estáticos */
+.pizza-card {
+    border-radius: 12px;
+    overflow: hidden;
+    /* animation removed: keep subtle static shadow */
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    background: #fff;
+    /* no transform/transition here */
+}
+.pizza-card img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+.pizza-card .p-4 {
+    padding: 16px;
+}
+
+/* Carrinho - leve feedback visual */
+.cart-item {
+    transition: background-color 0.16s ease, transform 0.16s ease;
+}
+.cart-item:hover {
+    background-color: #f3f4f6;
+    transform: translateX(4px);
+}
+
+/* CSS movido do pedido.html */
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 400px;
+    margin: 60px auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    padding: 32px 24px;
+    text-align: center;
+}
+.status-icon {
+    font-size: 48px;
+    color: #ff9800;
+    margin-bottom: 16px;
+}
+h1 {
+    font-size: 1.7em;
+    margin-bottom: 12px;
+}
+p {
+    color: #555;
+    margin-bottom: 28px;
+}
+a.button {
+    display: inline-block;
+    padding: 10px 28px;
+    background: #1976d2;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+a.button:hover { background: #125ea8; }
+
+/* Topbar / rootbar */
+.topbar { background: #7f1d1d; color: #fff7ed; }
+.topbar .container { display:flex; align-items:center; justify-content:space-between; }
+
+/* CTA */
+a.cta, .cta-btn {
+    background: linear-gradient(90deg,#FDE68A,#F59E0B);
+    color:#7f1d1d;
+    border-radius:9999px;
+    padding:12px 28px;
+    font-weight:700;
+    box-shadow:0 8px 24px rgba(245,158,11,0.18);
+}
+a.cta:focus, .cta-btn:focus { outline:none; box-shadow:0 0 0 4px rgba(245,158,11,0.18); }
+
+/* Price badge and actions */
+.pizza-price { font-weight:800; color:#7f1d1d; }
+.add-btn { background:#FACC15; color:#7f1d1d; border-radius:8px; padding:8px 12px; }
+
+/* Accessibility focus */
+:focus { outline: 3px solid rgba(99,102,241,0.18); outline-offset:2px; }
+
+/* Modal styles */
+#cart-modal, #checkout-modal { align-items:flex-start; padding-top:48px; }
+#cart-modal .bg-white, #checkout-modal .bg-white { max-height:80vh; overflow:auto; }
+
+/* Loyalty badge */
+#loyalty-count { font-weight:700; background:rgba(255,255,255,0.18); padding:6px 8px; border-radius:6px; }
+
+/* Loyalty stamp (moved from inline styles in site.php) */
+.stamp {
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    border:2px dashed #cbd5e1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin:6px;
+    background:#fff;
+    font-weight:700;
+    color:#475569;
+}
+.stamp.filled {
+    background:#f59e0b;
+    border-style:solid;
+    color:#fff;
+}
+
+/* Order tracking small widget */
+.track-box { background:#fff; padding:8px 12px; border-radius:8px; box-shadow:0 6px 20px rgba(2,6,23,0.08); }
+
+/* Responsive tweaks */
+@media (min-width:1024px) {
+    .pizza-card img { height:240px; }
+}
+
+/* Top white nav */
+.top-nav { background: #fff; }
+.top-nav a { text-decoration: none; }
+
+/* Hero stripe (grande faixa vermelha) */
+.hero-strip { background: linear-gradient(180deg,#7f1d1d,#7a1515); padding-bottom: 4rem; }
+
+/* Hero card (central) */
+.hero-card {
+    transform: translateY(16px); /* menor deslocamento */
+    border-radius: 14px;
+    overflow: hidden;
+}
+.hero-card p { line-height: 1.45; color: #475569; }
+
+/* Search input + CTA */
+#address-input {
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    padding-left: 16px;
+    padding-right: 16px;
+    font-size: 16px;
+}
+#address-input::placeholder { color: #9ca3af; }
+
+.cta-btn {
+    background: linear-gradient(90deg,#FDE68A,#F59E0B);
+    color: #7f1d1d;
+    border-radius: 9999px;
+    padding: 12px 22px;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(245,158,11,0.12);
+}
+
+/* Make hero card responsive */
+@media (max-width: 1024px) {
+    .hero-card { transform: translateY(10px); padding:18px; }
+    .hero-strip { padding-bottom: 2.5rem; }
+}
+
+/* Ensure menu section sits nicely under hero */
+#menu { padding-top: 3rem; }
+
+/* small polish: reduce hero image gap on wide screens */
+.hero-card img { max-width: 520px; border-radius: 10px; }
+
+/* Ajustes para centralizar header e reduzir espaçamentos */
+.top-nav .container {
+    /* centraliza visualmente o conteúdo e mantém gap interno */
+    justify-content: center;
+    gap: 18px;
+    padding-top: 10px;  /* reduzir um pouco */
+    padding-bottom: 10px;
+}
+.header-center { display:flex; align-items:center; gap:18px; }
+
+/* reduz espaço da faixa hero para separar, sem exagero */
+.hero-strip {
+    background: linear-gradient(180deg,#7f1d1d,#7a1515);
+    padding-top: 2.25rem;
+    padding-bottom: 2.25rem; /* menor que antes */
+}
